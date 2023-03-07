@@ -1,0 +1,70 @@
+1.
+2. Haremos una API Rest 
+3. Haremos un whatsapp web con socket.io
+
+NODE JS
+
+Creamos una carpeta: "SimpleAPI"
+entramos a esta carpeta con el cmd, y digitamos npm init -y
+Esto te inicializa el archivo package.json
+Con esto se crea un documento package en la carpeta
+este documento contiene un json, en este, tenemos varias cosas
+veremos un valor con clave "main", esto va a ser lo que se ejecute al ejecutar la aplicación
+
+	lo más importante es "scripts", vemos que por defecto
+	tenemos un script test
+
+A parte de test, podemos tener otra clave p.ej. "dev" para cuando esté en desarrollo
+y por ejemplo "prod" para cuando esté en producción
+
+Si desde la línea de comandos digitamos npm test, 
+nos mostrará datos generales de este fichero, y vemos que 
+se muestra el string que se corresponde con "test"
+
+Creamos un nuevo script:
+"start": "node index.js" 	--OJO: hay que poner una coma al final de la línea de test
+
+instalamos express:
+node install express
+
+vemos que se instalan varias cosas en la carpeta 
+Son todas las cosas que necesita express para funcionar
+
+Creamos un archivo: index.js
+Escribimos una primera línea:
+
+//Esta línea sirve para importar express
+const express = require('express');
+
+	-- Continuamos en Visual Studio Code
+
+
+2022-12-07
+
+EN UN PRINCIPIO vamos a hacer tres prácticas
+1- 
+2- un servidor que recibe peticiones de tipo rest por ejemplo, y que devuelva información en un json
+3- Haremos un chat en tiempo real.
+
+En el archivo package.json:
+veremos un valor con clave "main", esto va a ser lo que se ejecute al ejecutar la aplicación
+
+Dentro de la carpeta public:
+	 tenemos; css, fonts y js -> OJO: Estos js se ejecutan en el cliente
+	y luego los que están fuera de public (ej: index.js), se ejecutan en el servidor.
+
+Carpeta routes:
+	Parece que van los archivos de enrutamiento
+	
+Carpeta views/pages:
+	hay ficheros .ejs, que son básicamente htmls
+
+Para mantener una session:
+const session = require('express-session');
+
+Si queremos implementar un login con google, lo buscamos en google, porque google nos dá el código
+y entonces un cliente puede logearse en nuestro server con su cuenta google
+
+Para iniciar la aplicación: desde cmd:
+
+	npm start

@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body
+    style="background-image: url('https://png.pngtree.com/thumb_back/fw800/background/20200216/pngtree-vector-design-of-geometry-pattern-with-futuristic-gold-color-perfect-for-image_329913.jpg');">
+
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="col-12">
+                            <h4>Explicación API</h4>
+                            <br>
+                            <p>En la mayoría de los casos, adoptar significa darle una segunda 
+                                oportunidad a un animal que ha sufrido un proceso de abandono, y en 
+                                ocasiones maltrato. Acogerlo en tu casa de por vida y darle la estabilidad,
+                                los cuidados y el cariño que necesita va a ayudarlo a que recupere su 
+                                confianza y su autoestima.</p>
+                            <p>
+                                En esta APi puedes visualizar las mascotas en adopción de de Zaragoza y 
+                                sus datos, para ello debes iniciar sesión en google. Una vez hecho esto 
+                                obtendrás una apiKey, la cual tiene permisos 1 por defecto, con lo que 
+                                puedes realizar la primera petición. Para poder realizar la petición de
+                                protectoras debes cambiar tus permisos a 2.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="card-body" style="background-image: url('https://png.pngtree.com/thumb_back/fw800/background/20200216/pngtree-vector-design-of-geometry-pattern-with-futuristic-gold-color-perfect-for-image_329913.jpg');">
+                        <div class="card">
+                            <div class="card-header bg-primary">
+                                <p class=" fs-5"><strong>http://localhost:3000/(ApiKey)/mascotas/(idMascota)</strong></p>
+                            </div>
+                            <div class="card-body">
+                                <p>Para que devuelva los datos una mascota con su id, debes colocar la apiKey de tu usuario
+                                    en el espacio (ApiKey) e ingresar el id de la mascota que quieres encontrar 
+                                    en el espacio (idMascota). En los datos de la mascota se encuentra
+                                    su nombre, raza y sexo.
+                                </p>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="card">
+                            <div class="card-header bg-primary">
+                                <p class=" fs-5"><strong>http://localhost:3000/(ApiKey)/mascotas/protectora(idMascota)</strong></p>
+                            </div>
+                            <div class="card-body">
+                                <p>Para que devuelva la protectora en la que se encuentra la mascota, 
+                                    debes colocar la apiKey de tu usuario en el espacio (ApiKey) e ingresar el id de la
+                                    mascota que quieres encontrar en el espacio (idMascota). 
+                                <br>
+                                <strong>(Necesitas tener permisos 2 para poder realizar esta)</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                    <form action="volver2" method="post">
+                        <button type="submit" class="btn btn-primary" value="Submit">Volver</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

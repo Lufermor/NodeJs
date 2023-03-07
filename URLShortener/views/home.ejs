@@ -1,0 +1,116 @@
+<!-- views/home.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Acortador de Enlaces</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=yes'>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Acortador de Enlaces</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/">Inicio</a></li>
+          <li><a href="/home">Mis enlaces</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#">Hola, <%= user.displayName %>!</a></li>
+          <li><a href="/auth/logout">Cerrar sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <h1 class="text-center">¡Acorta tus enlaces!</h1>
+        <% if (addError) { %>
+          <div class="alert alert-danger">
+            <strong>Error:</strong>
+            <%= addError %>
+          </div>
+        <% } %>
+        <% if (addSuccess) { %>
+          <div class="alert alert-success">
+            <strong>¡Éxito!</strong> Tu enlace se ha acortado a: <a href="<%= addSuccess %>">
+              <%= addSuccess %>
+            </a>
+          </div>
+        <% } %>
+        <hr>
+        <h2>Enlaces acortados:</h2>
+        <% if (links.length> 0) { %>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>URL original</th>
+                <th>URL acortada</th>
+                <th>Usos</th >
+                <th>Fecha</th>
+                <th>Eliminar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% links .forEach(function(link) { %>
+                <tr>
+                  <td>
+                    <%= link.url_original %>
+                  </td>
+                  <td>
+                    <a href="redir/<%= link.short_url %>"><%= link.short_url %></a>
+                  </td>
+                  <td>
+                    <%= link.usos %>
+                  </td>
+                  <td>
+                    <%= link.fecha %>
+                  </td>
+                  <td>
+                    <!-- <a href="/edit/<%= link.id %>">Editar</a> -->
+                    <a href="delete/<%= link.id %>"
+                      onclick="return confirm('¿Estás seguro de que quieres borrar este enlace?')">Borrar</a>
+                  </td>
+                </tr>
+                <% }); %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No hay enlaces acortados todavía.</p>
+        <% } %>
+        <hr>
+        <h2>Añadir nuevo enlace:</h2>
+        <form method="post" action="/add">
+          <div class="form-group">
+            <label for="newUrl">URL original:</label>
+            <input type="text" class="form-control" id="newUrl" name="newUrl"
+              placeholder="Introduce la URL que quieres acortar" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Acortar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/06194f4708.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

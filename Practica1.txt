@@ -1,0 +1,48 @@
+Consiste en crear un url shortener
+al cuál se le pasa una url larga y nos devuelve una url corta que 
+representa a la larga.
+Si se le pasa una corta, debe redireccionar a la larga
+
+Tenemos que hacer un nuevo proyecto nodejs
+en el cual tenemos que importar el paquete express y 
+el paquete nanoid?
+nano es un identificador de identificadores?
+si un usuario guarda una url con un id, esta id nunca debe repetirse
+
+Cualquier persona que escriba la dirección de nuestra página, y un 
+identificador registrado en la base de datos, el servidor le debe redireccionar
+a la url larga
+
+Pero si quiero registrar una url, tengo que logearme con mi cuenta
+
+solamente me puedo logear a través de google oAuth? 
+
+Las url tienen que estar formadas por: 
+	identificador único
+	id del usuario que la ha creado.
+	url original
+	url nueva (la short)
+	clicks que hay sobre la corta (veces que se ha usado)
+	día y hora en la que se creó
+
+Cuando un usuario me de su url, yo tendré todos los datos de esta
+
+tener en cuenta de google:
+crear nueva aplicación en google, 
+			---Está en el tutorial
+
+google sólamente autentifica que el que se acaba de logear, 
+se logea con una cuenta de google
+tenemos que ser capaz de almacenar en nuestra base de datos, los
+datos de ese logeo
+		---el usuario, porque la contraseña nunca es accesible
+
+tiene que haber dos rutas obligatorias (minimo)
+
+	-ruta post: le mandamos una url larga y la acorta (devuelve?)
+	-ruta get: redirecciona la página larga, NO LA DEVUELVE, sino que redirecciona
+
+Quizás lo más complejo de esta práctica es lo de google
+
+Para el proyecto, las rutas deben estar en un archivo 
+separado del index
