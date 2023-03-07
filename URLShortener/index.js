@@ -162,18 +162,34 @@ app.post('/add', isLoggedIn, (req, res) => {
     }else{
         const url_original = req.body.newUrl;
         //const short_url = nanoid.nanoid(7).toString();
-        const short_url = shortid.generate();
-        const userId = req.user.id;
-        connection.query(`INSERT INTO links (id, userId, url_original, short_url) VALUES (?, ?, ?, ?)`, [short_url, userId, url_original, short_url], (err, results) => {
+        var short_url = shortid.generate();
+        connection.query(`SELECT * FROM links WHERE url_original = ?`, [url_original], (err, results) => {
             if (err) {
-                addError = "Error al insertar nueva url.";
+                addError = "Error al realizar query en la base de datos.";
                 addSuccess = null;
                 console.error(err.message);
                 return res.sendStatus(500);
             }
-            addSuccess = short_url;
-            addError = null;
-            res.redirect('/home');
+            if (results.length > 0) {
+                // Si se obtiene algún resultado, significa que la url original ya tiene una url acortada asignada
+                short_url = results[0].short_url;
+                addSuccess = short_url;
+                addError = null;
+                return res.redirect('/home');
+            }else{
+                const userId = req.user.id;
+                connection.query(`INSERT INTO links (id, userId, url_original, short_url) VALUES (?, ?, ?, ?)`, [short_url, userId, url_original, short_url], (err, results) => {
+                    if (err) {
+                        addError = "Error al insertar nueva url.";
+                        addSuccess = null;
+                        console.error(err.message);
+                        return res.sendStatus(500);
+                    }
+                    addSuccess = short_url;
+                    addError = null;
+                    return res.redirect('/home');
+                });
+            }
         });
     }
 });
