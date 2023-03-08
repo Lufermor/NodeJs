@@ -46,3 +46,7 @@ Quizás lo más complejo de esta práctica es lo de google
 
 Para el proyecto, las rutas deben estar en un archivo 
 separado del index
+
+	
+
+

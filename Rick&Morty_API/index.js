@@ -35,7 +35,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'shortener1'
+    database: 'rick_morty_api_db'
 });
 
 connection.connect((err) => {
@@ -43,19 +43,17 @@ connection.connect((err) => {
         console.error(err.message);
         return;
     }
-    console.log('Conectado a la base de datos de acortador de enlaces.');
+    console.log('Conectado a la base de datos de la api Rick y Morty.');
 });
 
 // Crear tabla en la base de datos si no existe
-connection.query(`CREATE TABLE IF NOT EXISTS shortener1.links (
+connection.query(`CREATE TABLE IF NOT EXISTS rick_morty_api_db.usuarios (
   id VARCHAR(255) NOT NULL,
-  userId VARCHAR(255) NOT NULL,
-  url_original VARCHAR(255) NOT NULL,
-  short_url VARCHAR(50) NOT NULL,
-  usos INT NOT NULL DEFAULT 0,
+  api_key VARCHAR(255) NOT NULL,
+  permisos INT NOT NULL DEFAULT 1,
   fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY short_url (short_url)
+  UNIQUE KEY api_key (api_key)
 )`, (err) => {
     if (err) {
         console.error(err.message);
@@ -77,18 +75,23 @@ passport.use(new GoogleStrategy({
         userProfile = profile;
         const user = {
             id: profile.id,
-            displayName: profile.displayName
+            displayName: profile.displayName,
+            //profilePicUrl: profile._json.image.url, //esto no sé si funciona
+            profilePic: profile.photos[0].value, //esto no sé si funciona
         };
         done(null, user);
     }
 ));
 
 app.get('/success', (req, res) => res.redirect('/home'));
-app.get('/error', (req, res) => res.send("error logging in"));
-
-// passport.serializeUser((user, done) => {
-//     done(null, user.id);
-// });
+app.get('/error', (req, res) => {
+    res.send("Error iniciando sesion");
+    res.render('error.ejs', {
+        user: null,
+        mensaje: "Error iniciando sesion", 
+        baseUrl: 'http://localhost:3000/',
+    });
+});
 
 passport.serializeUser(function(user, cb) {
     cb(null, user);
