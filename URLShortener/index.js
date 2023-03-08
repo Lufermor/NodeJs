@@ -92,26 +92,11 @@ app.get('/error', (req, res) => res.send("error logging in"));
 
 passport.serializeUser(function(user, cb) {
     cb(null, user);
-  });
-  
-  passport.deserializeUser(function(obj, cb) {
-    cb(null, obj);
-  });
+});
 
-// passport.deserializeUser((id, done) => {
-//     // Obtener información del usuario de la base de datos
-//     connection.query(`SELECT * FROM users WHERE id = ?`, [id], (err, results) => {
-//         if (err) {
-//             console.error(err.message);
-//             return done(err);
-//         }
-//         const user = {
-//             id: results[0].id,
-//             displayName: results[0].displayName
-//         };
-//         done(null, user);
-//     });
-// });
+passport.deserializeUser(function(obj, cb) {
+    cb(null, obj);
+});
 
 // Página de inicio
 app.get('/', (req, res) => {
@@ -239,6 +224,18 @@ function isLoggedIn(req, res, next) {
     }
     res.redirect('/auth/google');
 }
+
+// Logging out: Elimina la variable de user y redirige a la página de autenticación
+app.get('/auth/logout', (req, res, next) => {
+    console.log("Entramos a /auth/logout");
+    user = null;
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        res.setHeader('Cache-Control', 'no-cache');
+        req.session = null;
+        res.redirect('/');
+    });
+});
 
 // Iniciar el servidor
 const port = 3000;
