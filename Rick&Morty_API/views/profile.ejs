@@ -1,0 +1,84 @@
+<!-- views/success.ejs -->
+<!doctype html>
+<html>
+  <head>
+    <title>Google SignIn</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> <!-- load bootstrap css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- load fontawesome -->
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Dropdown
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav me-4 mb-2 mb-lg-0 float-right">
+            <li class="mx-4">Hola, <%= user.displayName %>!</li>
+            <li class="mx-auto"><a href="/auth/logout">Cerrar sesión</a></li>
+          </ul>
+          <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <div class="jumbotron">
+        <h1 class="text-primary  text-center"><span class="fa fa-user"></span> Profile Information</h1>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="well">
+              <p>
+                  <strong>Id</strong>: <%= user.id %><br>
+                  <strong>Name</strong>: <%= user.displayName %><br>
+                  <strong>Api key</strong>: <%= userApiKey %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><br>
+    <div>
+      <ul>
+        <li><a href="changeKey">Cambiar la api key</a></li>
+        <form class="row g-3" action="/character/" method="get">
+          <div class="col-auto">
+            <label for="idCharacter" class="visually-hidden">Mostrar el personaje (Formato JSON) con id: </label>
+            <input type="text" class="form-control" id="idCharacter" name="idCharacter" placeholder="Id del equipo">
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary mb-3">Buscar</button>
+          </div>
+        </form>
+      </ul>
+    </div>
+    <br><br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/06194f4708.js" crossorigin="anonymous"></script>
+  </body>
+</html> 

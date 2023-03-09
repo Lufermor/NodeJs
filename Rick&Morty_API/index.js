@@ -4,10 +4,14 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const alert = require('alert');
+const generateApikey = require('generate-api-key');
+//const fetch = require('node-fetch');
 //const nanoid = require('nanoid');
 //const { nanoid } = require('nanoid');
 //import { nanoid } from 'nanoid';
 const shortid = require('shortid');
+var userApiKey = "Null";
+var permisos = 0;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -59,7 +63,7 @@ connection.query(`CREATE TABLE IF NOT EXISTS rick_morty_api_db.usuarios (
         console.error(err.message);
         return;
     }
-    console.log('Tabla de enlaces creada/verificada.');
+    console.log('Tabla de usuarios creada/verificada.');
 });
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -73,6 +77,30 @@ passport.use(new GoogleStrategy({
     (accessToken, refreshToken, profile, done) => {
         // Guardar información del usuario en sesión
         userProfile = profile;
+        connection.query(`select * from usuarios where '${profile.id}' = id`, function (err, results) {
+            if (err) {
+                console.error(err.message);
+                return res.sendStatus(500);
+            }
+            // Si el id no existe, crea un nuevo usuario con permisos 1 y una apiKey nueva.
+            if (results.length == 0) {
+              userApiKey = generateApikey.generateApiKey();
+              userApiKey = userApiKey.replaceAll("/","(");
+              permisos = 1;
+              connection.query(`insert into usuarios (id, api_key)
+              values (${profile.id}, '${userApiKey}')`, function (err, result) {
+                if (err) {
+                    console.error(err.message);
+                    return res.sendStatus(500);
+                }else {
+                    console.log(`Usuario ${profile.displayName} insertado en la base de datos`);
+                }
+              });
+            }else{
+              userApiKey = results[0].api;
+              permisos = results[0].permisos;
+            }
+          });
         const user = {
             id: profile.id,
             displayName: profile.displayName,
@@ -88,7 +116,7 @@ app.get('/error', (req, res) => {
     res.send("Error iniciando sesion");
     res.render('error.ejs', {
         user: null,
-        mensaje: "Error iniciando sesion", 
+        message: "Error iniciando sesion", 
         baseUrl: 'http://localhost:3000/',
     });
 });
@@ -126,20 +154,74 @@ var addError = null;
 app.get('/home', isLoggedIn, (req, res) => {
     // Obtener los enlaces del usuario de la base de datos
     console.log('Entrando en /home')
-    connection.query(`SELECT * FROM links WHERE userId = ?`, [req.user.id], (err, results) => {
+    connection.query(`SELECT * FROM rick_morty_api_db.usuarios WHERE id = ?`, [req.user.id], (err, results) => {
         if (err) {
             console.error(err.message);
-            return res.status(500).send('Error al obtener los enlaces del usuario.');
+            return res.status(500).send('Error al obtener los datos del usuario.');
         }
-        res.render('home.ejs', {
+        res.render('profile.ejs', { //Esta página será la página de perfil del usuario
             user: req.user,
-            links: results, 
-            addSuccess,
-            addError, 
+            userApiKey : results[0].api_key, 
+            permisos: results[0].permisos, 
             baseUrl: 'http://localhost:3000/',
         });
     });
 });
+
+// Crea una nueva apiKey y la modifica en la base de datos.
+app.get("/changeKey", isLoggedIn, (req, res) => {
+    userApiKey = generateApikey.generateApiKey();
+    userApiKey = userApiKey.replaceAll("/","(");
+    connection.query(`UPDATE rick_morty_api_db.usuarios SET api_key = '${userApiKey}' WHERE (id = ${req.user.id});`, 
+    function (err, result) {
+    });
+    res.redirect("/home");
+});
+
+//Petición que lanza una consulta a la api para obtener los datos del personaje del que se pasa su id
+app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
+    console.log("Entramos en /character/:idCharacter?");
+    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
+    res.setHeader("Content-Type", "application/json");
+    res.writeHead(200); 
+    let charId = "" + `${req.query.idCharacter}`;
+    const jsonContent = JSON.stringify(getCharacter(req.query.idCharacter), null, 3); 
+    return res.end(jsonContent);
+    connection.query(`SELECT trofeo.nombre FROM fecha join trofeo  ON fecha.trofeo_id = trofeo.id 
+            WHERE fecha.equipo_id = ?`, [req.query.idCharacter], function (error, results, fields) {
+        if (error) throw error;
+        
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200); 
+
+        results.forEach(result => {
+            console.log(result);
+            //res.write(JSON.stringify(result, null, 3));
+        });
+        
+        //Formateamos el resultado en JSON
+        const jsonContent = JSON.stringify(results, null, 3); 
+        console.log(typeof(jsonContent));
+        console.log(typeof(JSON.parse(jsonContent)));
+        res.end(jsonContent);
+        //res.send(JSON.parse(jsonContent)); 
+        //res.end();
+    });
+});
+
+// función que realiza la petición a la API pública y devuelve el JSON
+async function getCharacter(id) {
+    let response;
+    await import('node-fetch').then( fetch => {
+      response = fetch(`https://rickandmortyapi.com/api/character/${id}`);
+      console.log(response);
+      //return response;
+    }).catch(err => {
+      console.log(err.message);
+    });
+    const data = await response.json();
+    return data;
+  }  
 
 // Agregar un nuevo enlace
 app.post('/add', isLoggedIn, (req, res) => {
