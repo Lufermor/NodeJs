@@ -131,9 +131,12 @@ passport.deserializeUser(function(obj, cb) {
 
 // Página de inicio
 app.get('/', (req, res) => {
-    res.render('auth.ejs', {
-        user: req.user
-    });
+    if (req.isAuthenticated()) {
+        return res.redirect('/home', {
+            user: req.user
+        });
+    }
+    res.redirect('/auth/google');
 });
 
 // Página de autenticación de Google
@@ -182,46 +185,33 @@ app.get("/changeKey", isLoggedIn, (req, res) => {
 app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
     console.log("Entramos en /character/:idCharacter?");
     console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
-    res.setHeader("Content-Type", "application/json");
-    res.writeHead(200); 
+    
     let charId = "" + `${req.query.idCharacter}`;
-    const jsonContent = JSON.stringify(getCharacter(req.query.idCharacter), null, 3); 
-    return res.end(jsonContent);
-    connection.query(`SELECT trofeo.nombre FROM fecha join trofeo  ON fecha.trofeo_id = trofeo.id 
-            WHERE fecha.equipo_id = ?`, [req.query.idCharacter], function (error, results, fields) {
-        if (error) throw error;
-        
-        res.setHeader("Content-Type", "application/json");
-        res.writeHead(200); 
-
-        results.forEach(result => {
-            console.log(result);
-            //res.write(JSON.stringify(result, null, 3));
+    getCharacter(req.query.idCharacter)
+        .then(data => {
+            res.setHeader("Content-Type", "application/json");
+            res.writeHead(200); 
+            console.log(data);
+            const jsonContent = JSON.stringify(data, null, 3); 
+            return res.end(jsonContent);
+        })
+        .catch(error => { 
+            console.error(error);
+            return res.send(error);
         });
-        
-        //Formateamos el resultado en JSON
-        const jsonContent = JSON.stringify(results, null, 3); 
-        console.log(typeof(jsonContent));
-        console.log(typeof(JSON.parse(jsonContent)));
-        res.end(jsonContent);
-        //res.send(JSON.parse(jsonContent)); 
-        //res.end();
-    });
 });
 
+//Ahora vamos a solicitar los datos de la API pública
+const axios = require('axios');
 // función que realiza la petición a la API pública y devuelve el JSON
 async function getCharacter(id) {
-    let response;
-    await import('node-fetch').then( fetch => {
-      response = fetch(`https://rickandmortyapi.com/api/character/${id}`);
-      console.log(response);
-      //return response;
-    }).catch(err => {
-      console.log(err.message);
-    });
-    const data = await response.json();
-    return data;
-  }  
+  try {
+    const response = await axios.get(`https://rickandmortyapi.com/api/character/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 // Agregar un nuevo enlace
 app.post('/add', isLoggedIn, (req, res) => {

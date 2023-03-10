@@ -68,3 +68,25 @@ y entonces un cliente puede logearse en nuestro server con su cuenta google
 Para iniciar la aplicación: desde cmd:
 
 	npm start
+
+
+
+
+const fetch = require('node-fetch');
+
+// función que realiza la petición a la API pública y devuelve el JSON
+async function getCharacter(id) {
+  const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
+  const data = await response.json();
+  return data;
+}
+
+// ejemplo de uso de la función para obtener el personaje con id 1
+getCharacter(1)
+  .then((data) => {
+    // aquí puedes hacer lo que quieras con el objeto "data"
+    console.log(data);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
