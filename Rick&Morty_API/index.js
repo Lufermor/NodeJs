@@ -184,6 +184,22 @@ app.get("/cambiarPermisos", isLoggedIn, (req, res) => {
     res.redirect("/home");
   });
 
+//Petición que recibe un parámetro realiza una consulta a la base de datos, devuelve los resultados en formato json
+app.get("/location/:locationName?", isLoggedIn,(req, res) =>{
+    errorDePermisos = null;
+    queryDatabase('SELECT * FROM locations WHERE name LIKE ?', [`%${req.query.locationName}%`],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+          return;
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.status(200).send(JSON.stringify(results, null, 3));
+      }
+    );
+});
+
 //Petición que recibe un parámetro idCharacter, realiza una consulta a la base de datos, devuelve los resultados en formato json
 app.get("/mycharacter/:idCharacter?", isLoggedIn, (req, res) => {
     //console.log("Entrando en /mycharacter/:idCharacter?");

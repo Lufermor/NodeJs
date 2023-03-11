@@ -65,7 +65,7 @@
         </div>
       </div>
     </div><br>
-    <div>
+    <div class="container">
       <ul>
         <li><a href="changeKey">Cambiar la api key</a></li>
         <li><a href="cambiarPermisos">Cambiar el nivel de permisos</a></li>
@@ -86,6 +86,15 @@
           <div class="col-auto">
             <button type="submit" class="btn btn-primary mb-3">Buscar</button>
           </div>
+        </form>
+        <form class="row g-3" action="/location/" method="get">
+          <div class="col-auto">
+            <label for="location" class="visually-hidden">Ubicaciones (Formato JSON) almacenadas en la base de datos cuyo nombre contenga: </label>
+            <input type="text" class="form-control" id="locationName" name="locationName" placeholder="Earth">
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary mb-3">Buscar</button>
+          </div>
         </form><br>
         <% if (errorDePermisos) { %>
           <div class="alert alert-danger">
@@ -95,7 +104,7 @@
         <% } %>
         <form class="row g-3" action="/mycharacter2/" method="get">
           <h3>Formulario para buscar personaje en la base de datos por nombre y status</h3>
-          <p>(Es necesario tener un nivel de permisos dos para ejecutar esta petición)</p>
+          <p>(Es necesario tener un nivel de permisos 2 para ejecutar esta petición)</p>
           <div class="col-auto">
             <label for="nameCharacter" class="visually-hidden">Personaje cuyo nombre contenga: </label>
             <input type="text" class="form-control" id="nameCharacter" name="nameCharacter" placeholder="Rick">
