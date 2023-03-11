@@ -1,0 +1,141 @@
+<!-- views/success.ejs -->
+<!doctype html>
+<html>
+
+<head>
+  <title>Google SignIn</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bootstrap css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">The Rick and Morty API</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="documentacion">Documentación</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Dropdown
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="#">Action</a></li>
+              <li><a class="dropdown-item" href="#">Another action</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+          </li>
+        </ul>
+
+      </div>
+      <ul class="navbar-nav me-4 mb-2 mb-lg-0 ms-4">
+        <li class="mx-1">Hola, <%= user.displayName %>!</li>
+        <li class="mx-3 pe-3"><a href="/auth/logout">Cerrar sesión</a></li>
+      </ul>
+      <form class="d-flex float-right ms-5" action="#">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+  <div class="container mt-4" style="background-image: url('https://rickandmortyapi.com/images/docs.jpeg');"></div>
+    <div class="jumbotron">
+      <h1 class="text-primary text-center"><span class="fa fa-user"></span> The Rick and Morty API Documentation</h1>
+      <div class="row pb-5">
+        <div class="col mt-4 pt-3">
+          <h4>The Rick and Morty API Documentation</h4>
+          <br>
+          <p>Rick Sánchez es un científico loco, alcohólico, genio e irresponsable que decide
+            llevar a su nieto Morty en aventuras intergalácticas para hacerlo inteligente como él
+            y evitar que se convierta en un idiota como su padre, Jerry.</p><br>
+          <p>La serie animada de ciencia ficción para adultos, creada y producida por Justin
+            Roiland y Dan Harmon, sigue las aventuras de la familia tratando de encontrar un
+            equilibrio entre su vida familiar y los viajes a través del espacio y diferentes
+            realidades paralelas..</p>
+          <p>
+            En esta APi se pueden obtener datos de los personajes y ubicaciones que
+            aparecen en la serie, para usar la api el usuario necesita iniciar sesión con su cuenta de google
+          </p>
+          <p>Al iniciar sesión por primera vez, se asignara una apiKey aleatoria al usuario,
+            y se le otorgará un nivel de permisos 1. Tanto la apiKey como el nivel de permisos
+            pueden ser cambiados en cualquier momento.
+          </p>
+          <p>La mayoría de peticiones en la api se pueden realizar con un nivel de permisos 1,
+            pero hay una petición que sólo se puede realizar con un nivel de permisos 2.
+          </p>
+          <br>
+        </div>
+      </div>
+    </div>
+  </div><br>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <table class="table">
+          <thead>
+            <div class="container px5">
+              <h3 class="mx-5 px-5">Peticiones disponibles:</h3><br>
+              <p class="mx-5 px-5">Todos los datos que devuelve la API son de tipo JSON</p>
+            </div>
+            <br>
+          </thead>
+          <tbody>
+            <tr>
+              <td><h6>http://localhost:3000/changeKey :</h6></td>
+              <td><p> Cambia la apiKey del usuario loggeado</p></td>
+            </tr>
+            <tr>
+              <td><h6>http://localhost:3000/cambiarPermisos :</h6></td>
+              <td><p> Cambia el nivel de permisos del usuario loggeado</p></td>
+            </tr>
+            <tr>
+              <td><h6>http://localhost:3000/idCharacter/{id} :</h6></td>
+              <td>Devuelve los datos de el personaje con id = {id} pero cargado diréctamente desde la API pública original</td>
+            </tr>
+            <tr>
+              <td><h6>http://localhost:3000/mycharacter/{id} :</h6></td>
+              <td>Devuelve los datos de el personaje con id = {id} cargado desde la base de datos local</td>
+            </tr>
+            <tr>
+              <td><h6>http://localhost:3000/location/{nombre} :</h6></td>
+              <td>Devuelve los datos de las ubicaciones cuyo nombre contenga el pasado en el parámetro {nombre}</td>
+            </tr>
+            <tr>
+              <td><h6>http://localhost:3000/mycharacter2/?nameCharacter={nombre}&characterStatus={status} :</h6></td>
+              <td>Devuelve los datos de los personajes cuyo nombre contenga {nombre} y su estatus contenga {status}
+                <br> NOTA: Para esta petición es necesario tener un nivel de permisos 2
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <br><br>
+
+    <br><br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/06194f4708.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

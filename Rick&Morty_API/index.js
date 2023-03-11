@@ -126,9 +126,9 @@ app.get('/auth/google/callback',
     });
 
 var errorDePermisos = null;
-// Página de enlaces del usuario
+// Página de enlaces y del perfil del usuario
 app.get('/home', isLoggedIn, (req, res) => {
-    // Obtener los enlaces del usuario de la base de datos
+    // obtiene los datos del usuario de la base de datos
     console.log('Entrando en /home')
     connection.query(`SELECT * FROM rick_morty_api_db.usuarios WHERE id = ?`, [req.user.id], (err, results) => {
         if (err) {
@@ -142,6 +142,14 @@ app.get('/home', isLoggedIn, (req, res) => {
             baseUrl: 'http://localhost:3000/',
             errorDePermisos,
         });
+    });
+});
+
+app.get('/documentacion', isLoggedIn, (req, res) => {
+    // Obtener los enlaces del usuario de la base de datos
+    console.log('Entrando en /documentacion')
+    res.render('documentacion.ejs', { //Esta página será la página de documentación
+        user: req.user,
     });
 });
 
