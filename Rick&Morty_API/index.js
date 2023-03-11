@@ -37,10 +37,6 @@ app.use(passport.session());
 
 // Conexión a la base de datos MySQL usando la función exportada del fichero database
 conectarADataBase();
-// Cargamos datos en nuestra tabla locations de la BBDD, esta función sólo necesita ejecutarse una vez, por lo que ya después estará comentada siempre.
-// cargarLocations('https://rickandmortyapi.com/api/location');
-// Cargamos datos en nuestra tabla characters de la BBDD, esta función sólo necesita ejecutarse una vez, por lo que ya después estará comentada siempre.
-//cargarCharacters('https://rickandmortyapi.com/api/character');
 
 //Se realiza la autenticación de google, se carga un usuario si existe en la BBDD y sino, se crea uno nuevo con una api key nueva
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
