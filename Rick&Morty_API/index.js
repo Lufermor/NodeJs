@@ -213,11 +213,35 @@ app.get("/mycharacter/:idCharacter?", isLoggedIn, (req, res) => {
           res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
           return;
         }
-        res.setHeader("Content-Type", "application/json");
-        res.status(200).send(JSON.stringify(results, null, 3));
-      }
+        var personajes = results;
+        console.log(results[0].origin_id);
+        queryDatabase('SELECT * FROM locations WHERE id = ?',[results[0].origin_id],
+            (err, results2) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+                    return;
+                  }
+                if(results2[0]) personajes[0].origin = results2[0];
+                queryDatabase('SELECT * FROM locations WHERE id = ?',[results[0].location_id],
+                    (err, results3) => {
+                        if (err) {
+                            console.error(err);
+                            res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+                            return;
+                        }
+                        if (results3[0]) personajes[0].location = results3[0];
+                        delete personajes[0].origin_id;
+                        delete personajes[0].location_id;
+                        res.setHeader("Content-Type", "application/json");
+                        res.status(200).send(JSON.stringify(personajes, null, 3));
+                    }
+                );
+            }
+        );
+        }
     );
-  });  
+});  
 
 //Petición que recibe dos parámetros, comprueba si los permisos son adecuados y realiza una consulta a la base de datos, devuelve los resultados en formato json
 app.get("/mycharacter2/:nameCharacter?:characterStatus?", isLoggedIn,(req, res) =>{
