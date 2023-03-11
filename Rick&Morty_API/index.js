@@ -12,7 +12,7 @@ var userApiKey = "Null";
 var permisos = 0;
 
 //Importamos cosas de nuestro fichero database
-const { cargarLocations, queryDatabase, conectarADataBase, connection } = require('./database');
+const { queryDatabase, conectarADataBase, connection } = require('./database');
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -39,47 +39,8 @@ app.use(passport.session());
 conectarADataBase();
 // Cargamos datos en nuestra tabla locations de la BBDD, esta función sólo necesita ejecutarse una vez, por lo que ya después estará comentada siempre.
 // cargarLocations('https://rickandmortyapi.com/api/location');
-
-
-// getLocations()
-//     .then(data => {
-//         insertLocations(data.results);
-//         console.log("Ubicaciones cargadas en la BBDD");
-//     })
-//     .catch(error => {
-//         console.error(error);
-//         return res.status(500).send(error);
-//     });
-
-// Con esta función vamos a cargar automáticamente nuestra tabla characters de la BBDD 
-//con los datos de la API pública original
-// getCharacters()
-//     .then(data => {
-//         insertCharacters(data.results);
-//         console.log("Personajes cargados en la BBDD");
-//     })
-//     .catch(error => {
-//         console.error(error);
-//         return res.status(500).send(error);
-//     });
-
-
-function dataBaseLocations(req, res, next) {
-    getLocations()
-        .then(data => {
-            insertLocations(data.results);
-        })
-        .catch(error => { 
-            console.error(error);
-            return res.status(500).send(error);
-        });
-}
-// function dataBaseCharacters(req, res, next) {
-//     if (req.isAuthenticated()) {
-//         return next();
-//     }
-//     res.redirect('/auth/google');
-// }
+// Cargamos datos en nuestra tabla characters de la BBDD, esta función sólo necesita ejecutarse una vez, por lo que ya después estará comentada siempre.
+//cargarCharacters('https://rickandmortyapi.com/api/character');
 
 //Se realiza la autenticación de google, se carga un usuario si existe en la BBDD y sino, se crea uno nuevo con una api key nueva
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -239,45 +200,6 @@ async function getCharacters() {
     } catch (error) {
         console.error(error);
     }
-}
-
-
-
-
-
-//Función que inserta en la tabla characters de la base de datos, los datos obtenidos de un json
-function insertCharacters(characters) {
-
-    for (const character of characters) {
-        const query = `INSERT INTO characters (id, name, status, species, type, gender, origin_id, location_id, image, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-        const { id, name, status, species, type, gender, origin, location, image, url, created } = character;
-        const origin_name = origin.name;
-        const origin_url = origin.url;
-        const location_name = location.name;
-        const location_url = location.url;
-        const created_at = new Date(created).toISOString().slice(0, 19).replace('T', ' ');
-        
-        const originResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [origin_name, origin_url]);
-        // Verificar si la ubicación ya existe en la tabla locations
-        let originId;
-        if (originResult[0]) {
-            originId = originResult[0].id;
-        } else originId = 1;
-
-        const locationResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [location_name, location_url]);
-        // Verificar si la ubicación ya existe en la tabla locations
-        let locationId;
-        if (locationResult[0]) {
-            locationId = locationResult[0].id;
-        } else locationId = 1;
-
-        const values = [id, name, status, species, type, gender, originId, locationId, image, url, created_at];
-
-        connection.execute(query, values);
-    }
-
-    //await connection.end();
 }
 
 async function insertCharacters2(characters) {
