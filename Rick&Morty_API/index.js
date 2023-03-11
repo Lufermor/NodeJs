@@ -9,7 +9,7 @@ const shortid = require('shortid');
 //Usamos axios para ayudarnos a obtener datos de la API pública:
 const axios = require('axios');
 var userApiKey = "Null";
-var permisos = 0;
+var userPermisos = 0;
 
 //Importamos cosas de nuestro fichero database
 const { queryDatabase, conectarADataBase, connection } = require('./database');
@@ -63,7 +63,7 @@ passport.use(new GoogleStrategy({
             if (results.length == 0) {
               userApiKey = generateApikey.generateApiKey();
               userApiKey = userApiKey.replaceAll("/","(");
-              permisos = 1;
+              userPermisos = 1;
               connection.query(`insert into usuarios (id, api_key)
               values (${profile.id}, '${userApiKey}')`, function (err, result) {
                 if (err) {
@@ -75,7 +75,7 @@ passport.use(new GoogleStrategy({
               });
             }else{
               userApiKey = results[0].api;
-              permisos = results[0].permisos;
+              userPermisos = results[0].permisos;
             }
           });
         const user = {
@@ -92,7 +92,7 @@ passport.use(new GoogleStrategy({
 app.get('/success', (req, res) => res.redirect('/home'));
 // carga la pagina de error que le muestra un mensaje de error al usuario.
 app.get('/error', (req, res) => {
-    res.send("Error iniciando sesion");
+    //res.send("Error iniciando sesion");
     res.render('error.ejs', {
         user: null,
         message: "Error iniciando sesion", 
@@ -160,6 +160,14 @@ app.get("/changeKey", isLoggedIn, (req, res) => {
     });
     res.redirect("/home");
 });
+
+// Cambia el nivel de permisos del usuario
+app.get("/cambiarPermisos", (req, res) => {
+    if(userPermisos === 1) userPermisos = 2;
+    else userPermisos = 1;
+    queryDatabase(`UPDATE usuarios SET permisos = ? WHERE id = ?`, [userPermisos, req.user.id]);
+    res.redirect("/home");
+  });
 
 //Petición que lanza una consulta a la api para obtener los datos del personaje del que se pasa su id
 app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
@@ -284,7 +292,7 @@ app.get('/auth/logout', (req, res, next) => {
     console.log("Entramos a /auth/logout");
     user = null;
     userApiKey = "Null";
-    permisos = 0;
+    userPermisos = 0;
     req.logout(function(err) {
         if (err) { return next(err); }
         res.setHeader('Cache-Control', 'no-cache');

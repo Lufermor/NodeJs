@@ -220,7 +220,7 @@ function queryDatabase(query, params, callback) {
       callback(err, null);
       return;
     }
-    callback(null, results);
+    return results;
   });
 }
 
