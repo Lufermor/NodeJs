@@ -281,6 +281,17 @@ function insertCharacters(characters) {
 
 }
 
+
+// función que realiza la petición a la API pública para obtener una lista de personajes y devuelve el JSON
+async function getCharacters() {
+  try {
+      const response = await axios.get(`https://rickandmortyapi.com/api/character`);
+      return response.data;
+  } catch (error) {
+      console.error(error);
+  }
+}
+
 // Exporta las funciones para ejecutar consultas
 module.exports = {
   insertLocations,

@@ -115,7 +115,7 @@ app.get('/', (req, res) => {
             user: req.user
         });
     }
-    res.redirect('/auth/google');
+    res.render('auth.ejs');
 });
 
 // Página de autenticación de Google
@@ -190,46 +190,7 @@ async function getCharacter(id) {
     } catch (error) {
         console.error(error);
     }
-}
-
-// función que realiza la petición a la API pública para obtener una lista de personajes y devuelve el JSON
-async function getCharacters() {
-    try {
-        const response = await axios.get(`https://rickandmortyapi.com/api/character`);
-        return response.data;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function insertCharacters2(characters) {
-    for (const character of characters) {
-        const locationName = character.origin.name;
-        const locationUrl = character.origin.url;
-
-        // Verificar si la ubicación ya existe en la tabla locations
-        let locationId;
-        try {
-            const locationResult = await pool.query('SELECT id FROM locations WHERE name = ? AND url = ?', [locationName, locationUrl]);
-            if (locationResult[0]) {
-                locationId = locationResult[0].id;
-            } else {
-                const insertLocationResult = await pool.query('INSERT INTO locations (name, url) VALUES (?, ?)', [locationName, locationUrl]);
-                locationId = insertLocationResult.insertId;
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-        // Insertar datos del personaje en la tabla characters
-        try {
-            await pool.query('INSERT INTO characters (id, name, status, species, type, gender, image, url, created, location_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [character.id, character.name, character.status, character.species, character.type, character.gender, character.image, character.url, character.created, locationId]);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-}
-  
+}  
 
 // Agregar un nuevo enlace
 app.post('/add', isLoggedIn, (req, res) => {
@@ -315,13 +276,15 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('/auth/google');
+    res.redirect('/');
 }
 
 // Logging out: Elimina la variable de user y redirige a la página de autenticación
 app.get('/auth/logout', (req, res, next) => {
     console.log("Entramos a /auth/logout");
     user = null;
+    userApiKey = "Null";
+    permisos = 0;
     req.logout(function(err) {
         if (err) { return next(err); }
         res.setHeader('Cache-Control', 'no-cache');
