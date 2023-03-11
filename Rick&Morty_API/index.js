@@ -162,12 +162,48 @@ app.get("/changeKey", isLoggedIn, (req, res) => {
 });
 
 // Cambia el nivel de permisos del usuario
-app.get("/cambiarPermisos", (req, res) => {
+app.get("/cambiarPermisos", isLoggedIn, (req, res) => {
     if(userPermisos === 1) userPermisos = 2;
     else userPermisos = 1;
     queryDatabase(`UPDATE usuarios SET permisos = ? WHERE id = ?`, [userPermisos, req.user.id]);
     res.redirect("/home");
   });
+
+//Petición que recibe un parámetro idCharacter, realiza una consulta a la base de datos, devuelve los resultados en formato json
+app.get("/mycharacter/:idCharacter?", isLoggedIn, (req, res) => {
+    console.log("Entramos en /mycharacter/:idCharacter?");
+    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
+    queryDatabase(`SELECT * FROM rick_morty_api_db.characters WHERE id = ?`, [req.query.idCharacter],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+          return;
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.status(200).send(JSON.stringify(results, null, 3));
+      }
+    );
+  });  
+
+//Petición que recibe dos parámetros, comprueba si los permisos son adecuados y realiza una consulta a la base de datos, devuelve los resultados en formato json
+app.get("/mycharacter/:nameCharacter?", isLoggedIn,(req, res) =>{
+    console.log("Entramos en /character/:idCharacter?");
+    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
+    
+    let charId = "" + `${req.query.idCharacter}`;
+    getCharacter(req.query.idCharacter)
+        .then(data => {
+            res.setHeader("Content-Type", "application/json");
+            res.writeHead(200);
+            const jsonContent = JSON.stringify(data, null, 3); 
+            return res.end(jsonContent);
+        })
+        .catch(error => { 
+            console.error(error);
+            return res.send(error);
+        });
+});
 
 //Petición que lanza una consulta a la api para obtener los datos del personaje del que se pasa su id
 app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
@@ -178,8 +214,7 @@ app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
     getCharacter(req.query.idCharacter)
         .then(data => {
             res.setHeader("Content-Type", "application/json");
-            res.writeHead(200); 
-            console.log(data);
+            res.writeHead(200);
             const jsonContent = JSON.stringify(data, null, 3); 
             return res.end(jsonContent);
         })
@@ -284,7 +319,7 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('/');
+    return res.redirect('/');
 }
 
 // Logging out: Elimina la variable de user y redirige a la página de autenticación
