@@ -131,8 +131,7 @@ app.get('/auth/google/callback',
         res.redirect('/success');
     });
 
-var addSuccess = null;
-var addError = null;
+var errorDePermisos = null;
 // Página de enlaces del usuario
 app.get('/home', isLoggedIn, (req, res) => {
     // Obtener los enlaces del usuario de la base de datos
@@ -147,6 +146,7 @@ app.get('/home', isLoggedIn, (req, res) => {
             userApiKey : results[0].api_key, 
             permisos: results[0].permisos, 
             baseUrl: 'http://localhost:3000/',
+            errorDePermisos,
         });
     });
 });
@@ -155,9 +155,15 @@ app.get('/home', isLoggedIn, (req, res) => {
 app.get("/changeKey", isLoggedIn, (req, res) => {
     userApiKey = generateApikey.generateApiKey();
     userApiKey = userApiKey.replaceAll("/","(");
+    errorDePermisos = null;
     connection.query(`UPDATE rick_morty_api_db.usuarios SET api_key = '${userApiKey}' WHERE (id = ${req.user.id});`, 
-    function (err, result) {
-    });
+        function (err, result) {
+            if (err) {
+                console.error(err);
+                res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+                return;
+              }
+        });
     res.redirect("/home");
 });
 
@@ -165,14 +171,23 @@ app.get("/changeKey", isLoggedIn, (req, res) => {
 app.get("/cambiarPermisos", isLoggedIn, (req, res) => {
     if(userPermisos === 1) userPermisos = 2;
     else userPermisos = 1;
-    queryDatabase(`UPDATE usuarios SET permisos = ? WHERE id = ?`, [userPermisos, req.user.id]);
+    errorDePermisos = null;
+    queryDatabase(`UPDATE usuarios SET permisos = ? WHERE id = ?`, [userPermisos, req.user.id],
+        (err, results) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+                return;
+              }
+        }
+    );
     res.redirect("/home");
   });
 
 //Petición que recibe un parámetro idCharacter, realiza una consulta a la base de datos, devuelve los resultados en formato json
 app.get("/mycharacter/:idCharacter?", isLoggedIn, (req, res) => {
-    console.log("Entramos en /mycharacter/:idCharacter?");
-    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
+    //console.log("Entrando en /mycharacter/:idCharacter?");
+    errorDePermisos = null;
     queryDatabase(`SELECT * FROM rick_morty_api_db.characters WHERE id = ?`, [req.query.idCharacter],
       (err, results) => {
         if (err) {
@@ -187,28 +202,27 @@ app.get("/mycharacter/:idCharacter?", isLoggedIn, (req, res) => {
   });  
 
 //Petición que recibe dos parámetros, comprueba si los permisos son adecuados y realiza una consulta a la base de datos, devuelve los resultados en formato json
-app.get("/mycharacter/:nameCharacter?", isLoggedIn,(req, res) =>{
-    console.log("Entramos en /character/:idCharacter?");
-    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
-    
-    let charId = "" + `${req.query.idCharacter}`;
-    getCharacter(req.query.idCharacter)
-        .then(data => {
-            res.setHeader("Content-Type", "application/json");
-            res.writeHead(200);
-            const jsonContent = JSON.stringify(data, null, 3); 
-            return res.end(jsonContent);
-        })
-        .catch(error => { 
-            console.error(error);
-            return res.send(error);
-        });
+app.get("/mycharacter2/:nameCharacter?:characterStatus?", isLoggedIn,(req, res) =>{
+
+    if(!(userPermisos === 2)){
+        errorDePermisos =  "Error de permisos ¡Necesitas un nivel de permisos 2 para ejecutar esta petición!";
+        return res.redirect('/home');
+    } else errorDePermisos = null;
+    queryDatabase('SELECT * FROM characters WHERE name LIKE ? AND status LIKE ?', [`%${req.query.nameCharacter}%`, `%${req.query.characterStatus}%`],
+      (err, results) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+          return;
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.status(200).send(JSON.stringify(results, null, 3));
+      }
+    );
 });
 
 //Petición que lanza una consulta a la api para obtener los datos del personaje del que se pasa su id
 app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
-    console.log("Entramos en /character/:idCharacter?");
-    console.log(`id del personaje obtenida = ${req.query.idCharacter}`);
     
     let charId = "" + `${req.query.idCharacter}`;
     getCharacter(req.query.idCharacter)

@@ -72,7 +72,7 @@
         <form class="row g-3" action="/character/" method="get">
           <div class="col-auto">
             <label for="idCharacter" class="visually-hidden">Mostrar el personaje (Formato JSON directo desde la API pública) con id: </label>
-            <input type="text" class="form-control" id="idCharacter" name="idCharacter" placeholder="Id del personaje">
+            <input type="text" class="form-control" id="idCharacter" name="idCharacter" placeholder="2">
           </div>
           <div class="col-auto">
             <button type="submit" class="btn btn-primary mb-3">Buscar</button>
@@ -81,7 +81,28 @@
         <form class="row g-3" action="/mycharacter/" method="get">
           <div class="col-auto">
             <label for="idCharacter2" class="visually-hidden">Mostrar el personaje (Formato JSON) almacenado en la base de datos con id: </label>
-            <input type="text" class="form-control" id="idCharacter2" name="idCharacter" placeholder="Id del personaje">
+            <input type="text" class="form-control" id="idCharacter2" name="idCharacter" placeholder="2">
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary mb-3">Buscar</button>
+          </div>
+        </form><br>
+        <% if (errorDePermisos) { %>
+          <div class="alert alert-danger">
+            <strong>Error:</strong>
+            <%= errorDePermisos %>
+          </div>
+        <% } %>
+        <form class="row g-3" action="/mycharacter2/" method="get">
+          <h3>Formulario para buscar personaje en la base de datos por nombre y status</h3>
+          <p>(Es necesario tener un nivel de permisos dos para ejecutar esta petición)</p>
+          <div class="col-auto">
+            <label for="nameCharacter" class="visually-hidden">Personaje cuyo nombre contenga: </label>
+            <input type="text" class="form-control" id="nameCharacter" name="nameCharacter" placeholder="Rick">
+          </div>
+          <div class="col-auto">
+            <label for="characterStatus" class="visually-hidden">Status del personaje: </label>
+            <input type="text" class="form-control" id="characterStatus" name="characterStatus" placeholder="Alive">
           </div>
           <div class="col-auto">
             <button type="submit" class="btn btn-primary mb-3">Buscar</button>

@@ -258,25 +258,35 @@ function insertCharacters(characters) {
       const location_url = location.url;
       const created_at = new Date(created).toISOString().slice(0, 19).replace('T', ' ');
       
+      var originId;
+      var locationId;
       // Obtenemos la id de la --location-- de la BBDD, que será el dato que hay que poner en la tabla characters
-      const originResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [origin_name, origin_url]);
-      // Verifica si la ubicación ya existe en la tabla locations
-      let originId;
-      if (originResult[0]) originId = originResult[0].id;
-      //else originId = 1;
+      queryDatabase('SELECT id FROM locations WHERE name = ? AND url = ?', [origin_name, origin_url],
+        (err, originResults) => {
+          if (err) {
+            console.error(err);
+            res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+            return;
+          }
+          if(originResults[0]) originId = originResults[0].id;
+          // Obtenemos la id de la --location-- de la BBDD, que será el dato que hay que poner en la tabla characters
+          queryDatabase('SELECT id FROM locations WHERE name = ? AND url = ?', [location_name, location_url],
+            (err, locationResults) => {
+              if (err) {
+                console.error(err);
+                res.status(500).send("Error interno del servidor al obtener datos de la base de datos");
+                return;
+              }
+              if(locationResults[0]) locationId = locationResults[0].id;
+              // Obtenemos un error cuando el json no trae algún dato y la variable queda undefined, para solucionar esto ponermos  || null a las variables a insertar
+              const values = [id, name || null, status || null, species || null, type || null, gender || null, 
+                originId || null, locationId || null, image || null, url || null, created_at || null];
 
-      // Obtenemos la id de la --location-- de la BBDD, que será el dato que hay que poner en la tabla characters
-      const locationResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [location_name, location_url]);
-      // Verificar si la ubicación ya existe en la tabla locations
-      let locationId;
-      if (locationResult[0]) locationId = locationResult[0].id;
-      //else locationId = 1;
-
-      // Obtenemos un error cuando el json no trae algún dato y la variable queda undefined, para solucionar esto ponermos  || null a las variables a insertar
-      const values = [id, name || null, status || null, species || null, type || null, gender || null, 
-        originId || null, locationId || null, image || null, url || null, created_at || null];
-
-      connection.execute(query, values);
+              connection.execute(query, values);
+            }
+          );
+        }
+      );
   }
 
 }
