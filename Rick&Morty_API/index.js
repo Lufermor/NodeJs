@@ -5,13 +5,14 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const alert = require('alert');
 const generateApikey = require('generate-api-key');
-//const fetch = require('node-fetch');
-//const nanoid = require('nanoid');
-//const { nanoid } = require('nanoid');
-//import { nanoid } from 'nanoid';
 const shortid = require('shortid');
+//Usamos axios para ayudarnos a obtener datos de la API pública:
+const axios = require('axios');
 var userApiKey = "Null";
 var permisos = 0;
+
+//Importamos cosas de nuestro fichero database
+const { cargarLocations, queryDatabase, conectarADataBase, connection } = require('./database');
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -34,38 +35,53 @@ var userProfile;
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Conexión a la base de datos MySQL
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'rick_morty_api_db'
-});
+// Conexión a la base de datos MySQL usando la función exportada del fichero database
+conectarADataBase();
+// Cargamos datos en nuestra tabla locations de la BBDD, esta función sólo necesita ejecutarse una vez, por lo que ya después estará comentada siempre.
+// cargarLocations('https://rickandmortyapi.com/api/location');
 
-connection.connect((err) => {
-    if (err) {
-        console.error(err.message);
-        return;
-    }
-    console.log('Conectado a la base de datos de la api Rick y Morty.');
-});
 
-// Crear tabla en la base de datos si no existe
-connection.query(`CREATE TABLE IF NOT EXISTS rick_morty_api_db.usuarios (
-  id VARCHAR(255) NOT NULL,
-  api_key VARCHAR(255) NOT NULL,
-  permisos INT NOT NULL DEFAULT 1,
-  fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY api_key (api_key)
-)`, (err) => {
-    if (err) {
-        console.error(err.message);
-        return;
-    }
-    console.log('Tabla de usuarios creada/verificada.');
-});
+// getLocations()
+//     .then(data => {
+//         insertLocations(data.results);
+//         console.log("Ubicaciones cargadas en la BBDD");
+//     })
+//     .catch(error => {
+//         console.error(error);
+//         return res.status(500).send(error);
+//     });
 
+// Con esta función vamos a cargar automáticamente nuestra tabla characters de la BBDD 
+//con los datos de la API pública original
+// getCharacters()
+//     .then(data => {
+//         insertCharacters(data.results);
+//         console.log("Personajes cargados en la BBDD");
+//     })
+//     .catch(error => {
+//         console.error(error);
+//         return res.status(500).send(error);
+//     });
+
+
+function dataBaseLocations(req, res, next) {
+    getLocations()
+        .then(data => {
+            insertLocations(data.results);
+        })
+        .catch(error => { 
+            console.error(error);
+            return res.status(500).send(error);
+        });
+}
+// function dataBaseCharacters(req, res, next) {
+//     if (req.isAuthenticated()) {
+//         return next();
+//     }
+//     res.redirect('/auth/google');
+// }
+
+//Se realiza la autenticación de google, se carga un usuario si existe en la BBDD y sino, se crea uno nuevo con una api key nueva
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GOOGLE_CLIENT_ID = '27100042038-ui30qinsg5jlipadj9jr4bddomoi8j9a.apps.googleusercontent.com';
 const GOOGLE_CLIENT_SECRET = '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';
@@ -111,7 +127,9 @@ passport.use(new GoogleStrategy({
     }
 ));
 
+// Redirige a la petición que nos da el perfil en caso de que la autenticación sea exitosa
 app.get('/success', (req, res) => res.redirect('/home'));
+// carga la pagina de error que le muestra un mensaje de error al usuario.
 app.get('/error', (req, res) => {
     res.send("Error iniciando sesion");
     res.render('error.ejs', {
@@ -129,7 +147,7 @@ passport.deserializeUser(function(obj, cb) {
     cb(null, obj);
 });
 
-// Página de inicio
+// mapea la petición barra, comprueba si el usuario ya se ha autenticado, en cuyo caso lleva a la pagina de inicio, sino a la de autenticación
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
         return res.redirect('/home', {
@@ -145,9 +163,10 @@ app.get('/auth/google',
 
 // Callback de autenticación de Google
 app.get('/auth/google/callback',
+    // Si la autenticación es correcta, redirige a la petición error
     passport.authenticate('google', { failureRedirect: '/error' }),
     (req, res) => {
-        // Successful authentication, redirect success.
+        // Si la autenticación es correcta, redirige a la petición success
         res.redirect('/success');
     });
 
@@ -202,16 +221,93 @@ app.get("/character/:idCharacter?", isLoggedIn,(req, res) =>{
 });
 
 //Ahora vamos a solicitar los datos de la API pública
-const axios = require('axios');
-// función que realiza la petición a la API pública y devuelve el JSON
+// Función que realiza la petición a la API pública para obtener un personaje y devuelve el JSON
 async function getCharacter(id) {
-  try {
-    const response = await axios.get(`https://rickandmortyapi.com/api/character/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
+    try {
+        const response = await axios.get(`https://rickandmortyapi.com/api/character/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+// función que realiza la petición a la API pública para obtener una lista de personajes y devuelve el JSON
+async function getCharacters() {
+    try {
+        const response = await axios.get(`https://rickandmortyapi.com/api/character`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+
+
+
+//Función que inserta en la tabla characters de la base de datos, los datos obtenidos de un json
+function insertCharacters(characters) {
+
+    for (const character of characters) {
+        const query = `INSERT INTO characters (id, name, status, species, type, gender, origin_id, location_id, image, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        const { id, name, status, species, type, gender, origin, location, image, url, created } = character;
+        const origin_name = origin.name;
+        const origin_url = origin.url;
+        const location_name = location.name;
+        const location_url = location.url;
+        const created_at = new Date(created).toISOString().slice(0, 19).replace('T', ' ');
+        
+        const originResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [origin_name, origin_url]);
+        // Verificar si la ubicación ya existe en la tabla locations
+        let originId;
+        if (originResult[0]) {
+            originId = originResult[0].id;
+        } else originId = 1;
+
+        const locationResult = connection.query('SELECT id FROM locations WHERE name = ? AND url = ?', [location_name, location_url]);
+        // Verificar si la ubicación ya existe en la tabla locations
+        let locationId;
+        if (locationResult[0]) {
+            locationId = locationResult[0].id;
+        } else locationId = 1;
+
+        const values = [id, name, status, species, type, gender, originId, locationId, image, url, created_at];
+
+        connection.execute(query, values);
+    }
+
+    //await connection.end();
+}
+
+async function insertCharacters2(characters) {
+    for (const character of characters) {
+        const locationName = character.origin.name;
+        const locationUrl = character.origin.url;
+
+        // Verificar si la ubicación ya existe en la tabla locations
+        let locationId;
+        try {
+            const locationResult = await pool.query('SELECT id FROM locations WHERE name = ? AND url = ?', [locationName, locationUrl]);
+            if (locationResult[0]) {
+                locationId = locationResult[0].id;
+            } else {
+                const insertLocationResult = await pool.query('INSERT INTO locations (name, url) VALUES (?, ?)', [locationName, locationUrl]);
+                locationId = insertLocationResult.insertId;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+        // Insertar datos del personaje en la tabla characters
+        try {
+            await pool.query('INSERT INTO characters (id, name, status, species, type, gender, image, url, created, location_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [character.id, character.name, character.status, character.species, character.type, character.gender, character.image, character.url, character.created, locationId]);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+  
 
 // Agregar un nuevo enlace
 app.post('/add', isLoggedIn, (req, res) => {
