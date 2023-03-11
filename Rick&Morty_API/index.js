@@ -107,9 +107,7 @@ passport.deserializeUser(function(obj, cb) {
 // mapea la petición barra, comprueba si el usuario ya se ha autenticado, en cuyo caso lleva a la pagina de inicio, sino a la de autenticación
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/home', {
-            user: req.user
-        });
+        return res.redirect('/home');
     }
     res.render('auth.ejs');
 });
